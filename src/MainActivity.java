@@ -242,14 +242,44 @@ public final class MainActivity extends Screen {
                     playlist.selected = playlist.sequences.size() - 1;
                     savePlaylistSelection();
                 }))
-            .setNeutralButton("Rename current", (dialog, which) -> {
-                Playlist.Sequence current = playlist.current();
-                editName("Rename playlist", "Playlist name", current.name, name -> {
-                    current.name = name;
-                    changed();
-                });
-            })
+            .setNeutralButton("Manage current", (dialog, which) -> manageCurrentPlaylist())
             .show();
+    }
+
+    private void manageCurrentPlaylist() {
+        Playlist.Sequence current = playlist.current();
+        new AlertDialog.Builder(this).setTitle(current.name)
+            .setItems(new String[]{"Rename playlist", "Delete playlist"}, (dialog, option) -> {
+                if (option == 0) {
+                    editName("Rename playlist", "Playlist name", current.name, name -> {
+                        current.name = name;
+                        changed();
+                    });
+                } else {
+                    confirmDeletePlaylist(current);
+                }
+            }).show();
+    }
+
+    private void confirmDeletePlaylist(Playlist.Sequence current) {
+        new AlertDialog.Builder(this).setTitle("Delete playlist?")
+            .setMessage("Delete “" + current.name + "” and its groups from Video Sequence? "
+                + "Your video files stay on your device.")
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Delete", (dialog, which) -> {
+                Playlist.Sequence removed = playlist.removeCurrent();
+                if (removed == null) {
+                    toast("Could not delete playlist.");
+                    return;
+                }
+                HashSet<String> released = new HashSet<>();
+                for (Playlist.Group group : removed.groups) {
+                    for (Playlist.Video video : group.videos) {
+                        if (released.add(video.uri)) releaseIfUnused(video);
+                    }
+                }
+                render(0);
+            }).show();
     }
 
     private void savePlaylistSelection() {

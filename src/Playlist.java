@@ -70,6 +70,22 @@ final class Playlist {
         return current().groups;
     }
 
+    Sequence removeCurrent() {
+        int previous = selected;
+        Sequence removed = sequences.remove(previous);
+        boolean needsReplacement = sequences.isEmpty();
+        if (needsReplacement) sequences.add(new Sequence("My playlist", new ArrayList<>()));
+        selected = Math.min(previous, sequences.size() - 1);
+        if (save()) return removed;
+
+        if (needsReplacement) sequences.clear();
+        sequences.add(previous, removed);
+        selected = previous;
+        // Restore the prior in-memory preferences after a failed disk write.
+        save();
+        return null;
+    }
+
     private static ArrayList<Group> readGroups(JSONArray savedGroups) throws JSONException {
         ArrayList<Group> groups = new ArrayList<>();
         for (int i = 0; i < savedGroups.length(); i++) {

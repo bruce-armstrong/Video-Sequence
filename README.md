@@ -4,6 +4,8 @@ Video Sequence is an offline Android app for playing your own videos in grouped 
 
 ## Install and use
 
+To delete a playlist, select it and tap **Playlists → Manage current → Delete playlist**. Your video files stay on your device. Deleting the last playlist opens a new, empty **My playlist**.
+
 Tap **Playlists** to create a named playlist, switch between playlists, or rename the current one. Each playlist has its own groups and video order. If you're updating from an earlier version, your existing sequence appears as **My playlist**.
 
 1. Open `VideoSequence.apk` on your Android device and follow the installation prompt.
